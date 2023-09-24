@@ -1,0 +1,275 @@
+﻿@inject SignInManager<ApplicationUser> SignInManager
+@using PalestineLiberationArmyProject.Models.Core;
+@inject UserManager<ApplicationUser> UserManager
+@model List<clsFrmField>
+@{
+    ViewData["Title"] = "الصفحة الرئيسية";
+}
+
+<div class="row" style="margin-top:10px">
+   
+    <div class="container">
+        <div class="navbar-header navbar-right">
+            <button type="button" id="print" onclick="printContent()" class="btn btn-info">طباعة المحتوى</button>
+
+            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#newItemModal">اضافة حقل</button>
+            @Html.ActionLink("رجوع", "Index", "Form", new { fldformuid = ViewBag.fldformuid }, new { @class = "btn btn-warning" })
+
+        </div>
+
+        <div class="navbar-collapse collapse" style="width: 255px;">
+            <form method="get" asp-area="" asp-controller="FormField" asp-action="Index">
+                <button type="submit" class="btn btn-primary">بحث</button>
+                <input type="text" name="fldparameter" />
+                <input type="hidden" name="fldformuid" value="@ViewBag.fldformuid" />
+            </form>
+        </div>
+    </div>
+    <script>
+
+    function printContent() {
+       printDataByID("fieldsGrid");
+    }
+    </script>
+</div>
+
+@if (Model.Count == 0)
+{
+
+    <h1>لا يوجد نتائج</h1>
+}
+else
+{
+<div class="container">
+    <br />
+    <div style="width:100%; margin:0 auto;">
+        <table id="fieldsGrid" class="table table-striped table-bordered dt-responsive nowrap" width="100%" cellspacing="0" dir="rtl">
+            <thead>
+                <tr>
+                    <th>رقم الحقل</th>
+                    <th>اسم الحقل</th>
+                    <th>اسم الحقل البرمجي</th>
+                    <th>وصف الحقل</th>
+                    <th>نوع الحقل</th>
+                    <th>الحقل مطلوب</th>
+                    <th>ترتيب الحقل</th>
+                    <th>تاريخ انشاء الحقل</th>
+                    <th>تعديل</th>
+                    <th>حدف</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                @foreach (var field in Model)
+                {
+                    string idx_remove = "removeItemModal_" + field.fldUID;
+                    string idxLabel_remove = "removeItemModal_" + field.fldUID + "_Label";
+                    <div class="modal fade" id="@idx_remove" tabindex="-1" role="dialog" aria-labelledby="@idxLabel_remove" aria-hidden="true">
+                        <div class="modal-dialog  modal-xl" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h3 class="modal-title" id="@idxLabel_remove"><span>هل انت متأكد من حدف الحقل ؟</span></h3>
+                                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button class="btn btn-secondary" type="button" data-dismiss="modal"><h5>الغاء</h5></button>
+                                    @Html.ActionLink("تأكيد الحدف", "Delete", "FormField", new { flduid = field.fldUID, fldformuid = @ViewBag.fldformuid }, new { @class = "btn btn-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    string idx_edit = "editItemModal_" + field.fldUID;
+                    string idxLabel_edit = "editItemModal_" + field.fldUID + "_Label";
+                    <div class="modal fade" id="@idx_edit" tabindex="-1" role="dialog" aria-labelledby="@idxLabel_edit" aria-hidden="true">
+                        <div class="modal-dialog  modal-xl" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h3 class="modal-title" id="@idxLabel_edit"><span>تعديل الحقل</span></h3>
+                                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="post" asp-area="" asp-controller="FormField" asp-action="Update">
+                                        <div class="form-row">
+                                            <input type="hidden" name="fldformuid" value="@ViewBag.fldformuid" />
+                                            <div class="form-group col-md-6">
+                                                <label for="inputPassword4">تاريخ انشاء الحقل</label>
+                                                <input type="text" style="text-align:right" class="form-control" name="fldCreationDate" value="@field.fldCreationDate" readonly>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label for="inputPassword4">رقم الحقل</label>
+                                                <input type="text" style="text-align:right" class="form-control" name="flduid" value="@field.fldUID" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group col-md-6">
+                                                <label for="inputPassword4">وصف الحقل</label>
+                                                <input type="text" style="text-align:right" class="form-control" name="flddescription" value="@field.fldDescription">
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label for="inputEmail4">اسم الحقل</label>
+                                                <input type="text" style="text-align:right" class="form-control" name="fldname" value="@field.fldName" />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group col-md-6">
+                                                
+                                                <div class="form-group col-md-6">
+                                                    <label for="inputEmail4">اسم الحقل البرمجي</label>
+                                                    <input type="text" style="text-align:right" class="form-control" name="fldnamex" value="@field.fldNamex" />
+                                                </div>
+                                                <div class="form-group col-md-6">
+                                                    <label for="inputEmail4">ترتيب الحقل</label>
+                                                    <input type="number" style="text-align:center" class="form-control" name="fldorder" value="@field.fldOrder" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label for="inputEmail4">نوع الحقل</label>
+                                                <select style="text-align:center" class="form-control" name="flddatatype" value="@field.fldDataType">
+                                                    @if (field.fldDataType == "1")
+                                                    {
+                                                        <option value="1" selected>نصي</option>
+                                                        <option value="2">رقمي</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="1">نصي</option>
+                                                        <option value="2" selected>رقمي</option>
+
+                                                    }
+
+                                                </select>
+                                                </div>
+                                                
+                                            </div>
+                                        <div class="form-row">
+                                            <div class="form-group col-md-6">
+                                                <label for="inputEmail4">الحقل مطلوب</label>
+                                                @if (field.fldIsRequired == "1")
+                                                {
+                                                <input type="checkbox" style="text-align:center" class="form-control" name="fldisrequired" value="@field.fldIsRequired" checked/>
+                                                }
+                                                else
+                                                {
+
+                                                    <input type="checkbox" style="text-align:center" class="form-control" name="fldisrequired" value="@field.fldIsRequired" />
+
+                                                }
+                                            </div>
+                                          
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button class="btn btn-secondary" type="button" data-dismiss="modal"><h5>الغاء</h5></button>
+                                            <button type="submit" class="btn btn-success" href="#"><h5>تعديل</h5></button>
+                                        </div>
+                                    </form>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <tr>
+                        <th>@field.fldUID</th>
+                        <th>@field.fldName</th>
+                        <th>@field.fldNamex</th>
+                        <th>@field.fldDescription</th>
+                        <th>@field.fldDataType</th>
+                        <th>@field.fldIsRequired</th>
+                        <th>@field.fldOrder</th>
+                        <th>@field.fldCreationDate</th>
+                        <th><a class="btn btn-danger" data-toggle="modal" data-target="#@idx_remove"> حدف</a></th>
+                        <th><a class="btn btn-success" data-toggle="modal" data-target="#@idx_edit"> تعديل</a></th>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div> 
+}
+<!-- New Item Modal-->
+<div class="modal fade" id="newItemModal" tabindex="-1" role="dialog" aria-labelledby="newItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog  modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="newItemModalLabel"><span>اضافة حقل جديد</span></h3>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" asp-area="" asp-controller="FormField" asp-action="Add" >
+                    <input type="hidden" name="fldformuid" value="@ViewBag.fldformuid"/>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="inputPassword4">وصف الحقل</label>
+                            <input type="text" style="text-align:right" class="form-control" name="flddescription">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="inputEmail4">اسم الحقل</label>
+                            <input type="text" style="text-align:right" class="form-control" name="fldname" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="inputEmail4">اسم الحقل البرمجي</label>
+                            <input type="text" style="text-align:right" class="form-control" name="fldnamex" />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="inputEmail4">ترتيب الحقل</label>
+                            <input type="number" style="text-align:center" class="form-control" name="fldorder" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+
+                        <div class="form-group col-md-6">
+                            <label for="inputPassword4">نوع الحقل</label>
+                            <select type="se" style="text-align:right" class="form-control" name="flddatatype">
+                                <option value="1">نصي</option>
+                                <option value="2">رقمي</option>
+                            </select>
+                        </div>
+                        </div>
+                        <div class="form-row">
+
+                            <div class="form-group col-md-6">
+                                <label for="inputPassword4">الحقل مطلوب</label>
+                                <input type="checkbox" style="text-align:right" class="form-control" name="fldisrequired">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" type="button" data-dismiss="modal"><h5>الغاء</h5></button>
+                            <button type="submit" class="btn btn-info" href="#"><h5>اضافة</h5></button>
+                        </div>
+</form>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

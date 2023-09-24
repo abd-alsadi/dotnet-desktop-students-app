@@ -1,0 +1,52 @@
+﻿@inject SignInManager<ApplicationUser> SignInManager
+@using PalestineLiberationArmyProject.Models.Core;
+@inject UserManager<ApplicationUser> UserManager
+@model clsForm
+@{
+    ViewData["Title"] = "الصفحة الرئيسية";
+    var content= "";
+    if (Model.fldContent != null)
+    {
+        content = Model.fldContent;
+    }
+
+    ViewBag.Content = content;
+}
+<style>
+
+</style>
+<script src="~/Themes/ckeditor/ckeditor.js"></script>
+
+<form method="post" asp-area="" asp-controller="Content" asp-action="Add">
+    <div class="form-group" style="margin-top:50px;">
+        <div ass="col-md-10">
+            <input type="hidden" value="@ViewBag.Content" id="content"/>
+            <input type="hidden" name="fldformuid" value="@ViewBag.fldformuid"/>
+            @Html.TextAreaFor(model => model.fldContent, new { @id = "fldContent", @class = "form-control", @rows = "1000" })
+            @Html.ValidationMessageFor(model => model.fldContent, "", new { @class = "text-danger" })
+            <script>
+                CKEDITOR.replace("fldContent", {
+                    // Setting default language direction to right-to-left.
+                    contentsLangDirection: 'rtl'
+                });
+                var value = document.getElementById("content").value;
+                CKEDITOR.instances['fldContent'].setData(value);
+            </script>
+        </div>
+    </div>
+    <div class="form-group">
+        <button type="button" id="print" onclick="printContent()" class="btn btn-info">طباعة المحتوى</button>
+        @Html.ActionLink("رجوع", "Index", "FormInstance", new { fldformuid = ViewBag.fldformuid }, new { @class = "btn btn-warning" })
+
+
+    </div>
+</form>
+<script>
+    
+    function printContent() {
+        
+        var printed = CKEDITOR.instances['fldContent'].getData();
+        var html = '<html> <body dir="rtl" > ' + printed + '</body> </html>';
+        printDataByContent(html);
+    }
+</script>

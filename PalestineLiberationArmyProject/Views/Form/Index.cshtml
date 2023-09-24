@@ -1,0 +1,243 @@
+﻿@inject SignInManager<ApplicationUser> SignInManager
+@using PalestineLiberationArmyProject.Models.Core;
+@inject UserManager<ApplicationUser> UserManager
+@model List<clsForm>
+@{
+    ViewData["Title"] = "الصفحة الرئيسية";
+    var formObject = new clsForm();
+}
+<script src="~/Themes/ckeditor/ckeditor.js"></script>
+
+<div class="row" style="margin-top:10px">
+  
+    <div class="container">
+        <div class="navbar-header navbar-right">
+            @if (UserManager.GetUserName(User) == "admin@gmail.com")
+            {
+                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#newItemModal">اضافة نمودج</button>
+            }
+
+            @Html.ActionLink("رجوع", "Index", "Home", null, new { @class = "btn btn-warning" })
+
+         </div>
+
+        <div class="navbar-collapse collapse" style="width: 255px;">
+            <form method="get" asp-area="" asp-controller="Form" asp-action="Index">
+                <button type="submit" class="btn btn-primary">بحث</button>
+                <input type="text" name="fldparameter" />
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Topic Cards -->
+    <div id="cards_landscape_wrap-2">
+        <div class="container">
+            <div class="row">
+                @if (Model.Count == 0)
+                {
+
+                    <h1>لا يوجد نتائج</h1>
+                }
+                @foreach (var form in Model)
+                {
+                    string idx_remove = "removeItemModal_" + form.fldUID;
+                    string idxLabel_remove = "removeItemModal_" + form.fldUID+"_Label";
+                    <div class="modal fade" id="@idx_remove" tabindex="-1" role="dialog" aria-labelledby="@idxLabel_remove" aria-hidden="true">
+                        <div class="modal-dialog  modal-xl" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h3 class="modal-title" id="@idxLabel_remove"><span>هل انت متأكد من حدف النمودج ؟</span></h3>
+                                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                             
+                                <div class="modal-footer">
+                                    <button class="btn btn-secondary" type="button" data-dismiss="modal"><h5>الغاء</h5></button>
+                                    @Html.ActionLink("تأكيد الحدف", "Delete", "Form", new { flduid = form.fldUID }, new { @class = "btn btn-danger" } )
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    string idx_edit = "editItemModal_" + form.fldUID;
+                    string idxLabel_edit = "editItemModal_" + form.fldUID + "_Label";
+                    <div class="modal fade" id="@idx_edit" tabindex="-1" role="dialog" aria-labelledby="@idxLabel_edit" aria-hidden="true">
+                        <div class="modal-dialog  modal-xl" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h3 class="modal-title" id="@idxLabel_edit"><span>تعديل النمودج</span></h3>
+                                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                               <div class="modal-body">
+                                    <form method="post" asp-area="" asp-controller="Form" asp-action="Update">
+                                        <div class="form-row">
+                                            
+                                            <div class="form-group col-md-6">
+                                                <label for="inputPassword4">تاريخ انشاء النمودج</label>
+                                                <input type="text" style="text-align:right" class="form-control" name="fldCreationDate" value="@form.fldCreationDate" readonly>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label for="inputPassword4">رقم النمودج</label>
+                                                <input type="text" style="text-align:right" class="form-control" name="flduid" value="@form.fldUID" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group col-md-6">
+                                                <label for="inputPassword4">وصف النمودج</label>
+                                                <input type="text" style="text-align:right" class="form-control" name="flddescription" value="@form.fldDescription">
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label for="inputEmail4">اسم النمودج</label>
+                                                <input type="text" style="text-align:right" class="form-control" name="fldname" value="@form.fldName" />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group col-md-6">
+                                                <label for="inputPassword4">ايقونة النمودج</label>
+                                                <input type="file" style="text-align:right" class="form-control" name="fldIcon" value="@form.fldIcon">
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label for="inputEmail4">ترتيب النمودج</label>
+                                                <input type="number" style="text-align:center" class="form-control" name="fldorder" value="@form.fldOrder"/>
+                                            </div>
+                                        </div>
+                                       
+                                        <div class="modal-footer">
+                                            <button class="btn btn-secondary" type="button" data-dismiss="modal"><h5>الغاء</h5></button>
+                                            <button type="submit" class="btn btn-success" href="#"><h5>تعديل</h5></button>
+                                        </div>
+                                    </form>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-xs-12 col-sm-6 col-md-3 col-lg-3" style=" float: right !important;">
+        @if (UserManager.GetUserName(User) != "admin@gmail.com")
+        {
+                        <a asp-area="" asp-controller="FormInstance" asp-action="Index" asp-route-fldformuid="@form.fldUID">
+                            <div class="card-flyer">
+                                <div class="text-box">
+                                    <div class="image-box">
+                                        <img src="~/images/paper.jpg" alt="" />
+                                    </div>
+                                    <div class="text-container">
+                                        <h6>@form.fldName</h6>
+                                        <p>@form.fldDescription</p>
+                                    </div>
+                                   
+                                </div>
+
+                            </div>
+                        </a>
+        }
+        else
+        {
+                         <a href="">
+        <div class="card-flyer">
+            <div class="text-box">
+                <div class="image-box">
+                    <img src="~/images/paper.jpg" alt="" />
+                </div>
+                <div class="text-container">
+                    <h6>@form.fldName</h6>
+                    <p>@form.fldDescription</p>
+                </div>
+                @if (UserManager.GetUserName(User) == "admin@gmail.com")
+                {
+                    <div class="text-container">
+
+                        @Html.ActionLink("الحقول", "Index", "FormField", new { fldformuid = form.fldUID }, new { @class = "btn btn-primary" })
+                        @Html.ActionLink("النسخ", "Index", "FormInstance", new { fldformuid = form.fldUID }, new { @class = "btn btn-primary" })
+                        @Html.ActionLink("المحتوى", "Index", "Content", new { fldformuid = form.fldUID }, new { @class = "btn btn-primary" })
+
+
+                        <br />
+                        <br />
+                        <a class="btn btn-danger" data-toggle="modal" data-target="#@idx_remove"> حدف</a>
+                        <a class="btn btn-success" data-toggle="modal" data-target="#@idx_edit"> تعديل</a>
+                        @*<a asp-area="" asp-controller="Field" asp-action="Index"  class="btn btn-danger">الحقول</a>*@
+
+                    </div>
+                }
+            </div>
+
+        </div>
+    </a>
+
+        }
+
+                    </div>
+                }
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- New Item Modal-->
+<div class="modal fade" id="newItemModal" tabindex="-1" role="dialog" aria-labelledby="newItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog  modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="newItemModalLabel"><span>اضافة نمودج جديد</span></h3>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" asp-area="" asp-controller="Form" asp-action="Add">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="inputPassword4">وصف النمودج</label>
+                            <input type="text" style="text-align:right" class="form-control" name="flddescription">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="inputEmail4">اسم النمودج</label>
+                            <input type="text" style="text-align:right" class="form-control" name="fldname" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="inputPassword4">ايقونة النمودج</label>
+                            <input type="file" style="text-align:right" class="form-control" name="fldIcon">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="inputEmail4">ترتيب النمودج</label>
+                            <input type="number" style="text-align:center" class="form-control" name="fldorder" />
+                        </div>
+                    </div>
+                  
+                  
+                    <div class="modal-footer">
+                        <button class="btn btn-dark" type="button" data-dismiss="modal"><h5>الغاء</h5></button>
+                        <button type="submit" class="btn btn-info" href="#"><h5>اضافة</h5></button>
+                    </div>
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+

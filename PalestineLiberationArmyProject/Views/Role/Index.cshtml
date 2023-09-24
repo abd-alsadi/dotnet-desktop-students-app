@@ -1,0 +1,194 @@
+﻿@inject SignInManager<ApplicationUser> SignInManager
+@using PalestineLiberationArmyProject.Models.Core;
+@inject UserManager<ApplicationUser> UserManager
+@model List<clsRole>
+@{
+    ViewData["Title"] = "الصفحة الرئيسية";
+}
+
+<div class="row" style="margin-top:10px">
+  
+   
+
+
+    <div class="container">
+        <div class="navbar-header navbar-right">
+            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#newItemModal">اضافة دور</button>
+            @Html.ActionLink("رجوع", "Index", "Home", null, new { @class = "btn btn-warning" })
+        </div>
+
+        <div class="navbar-collapse collapse" style="width: 255px;">
+            <form method="get" asp-area="" asp-controller="Role" asp-action="Index">
+                <button type="submit" class="btn btn-primary">بحث</button>
+                <input type="text" name="fldparameter" />
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Topic Cards -->
+    <div id="cards_landscape_wrap-2">
+        <div class="container">
+            <div class="row">
+                @if (Model.Count == 0)
+                {
+
+                    <h1>لا يوجد نتائج</h1>
+                }
+                @foreach (var role in Model)
+                {
+                    string idx_remove = "removeItemModal_" + role.fldUID;
+                    string idxLabel_remove = "removeItemModal_" + role.fldUID+"_Label";
+                    <div class="modal fade" id="@idx_remove" tabindex="-1" role="dialog" aria-labelledby="@idxLabel_remove" aria-hidden="true">
+                        <div class="modal-dialog  modal-xl" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h3 class="modal-title" id="@idxLabel_remove"><span>هل انت متأكد من حدف الدور ؟</span></h3>
+                                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                             
+                                <div class="modal-footer">
+                                    <button class="btn btn-secondary" type="button" data-dismiss="modal"><h5>الغاء</h5></button>
+                                    @Html.ActionLink("تأكيد الحدف", "Delete", "Role", new { flduid = role.fldUID }, new { @class = "btn btn-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    string idx_edit = "editItemModal_" + role.fldUID;
+                    string idxLabel_edit = "editItemModal_" + role.fldUID + "_Label";
+                    <div class="modal fade" id="@idx_edit" tabindex="-1" role="dialog" aria-labelledby="@idxLabel_edit" aria-hidden="true">
+                        <div class="modal-dialog  modal-xl" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h3 class="modal-title" id="@idxLabel_edit"><span>تعديل الدور</span></h3>
+                                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                               <div class="modal-body">
+                                    <form method="post" asp-area="" asp-controller="Role" asp-action="Update">
+                                        <div class="form-row">
+                                            
+                                            <div class="form-group col-md-6">
+                                                <label for="inputPassword4">تاريخ انشاء الدور</label>
+                                                <input type="text" style="text-align:right" class="form-control" name="fldCreationDate" value="@role.fldCreationDate" readonly>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label for="inputPassword4">رقم الدور</label>
+                                                <input type="text" style="text-align:right" class="form-control" name="flduid" value="@role.fldUID" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group col-md-6">
+                                                <label for="inputPassword4">وصف الدور</label>
+                                                <input type="text" style="text-align:right" class="form-control" name="flddescription" value="@role.fldDescription">
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label for="inputEmail4">اسم الدور</label>
+                                                <input type="text" style="text-align:right" class="form-control" name="fldname" value="@role.fldName" />
+                                            </div>
+                                        </div>
+                                      
+                                        <div class="modal-footer">
+                                            <button class="btn btn-secondary" type="button" data-dismiss="modal"><h5>الغاء</h5></button>
+                                            <button type="submit" class="btn btn-success" href="#"><h5>تعديل</h5></button>
+                                        </div>
+                                    </form>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-xs-12 col-sm-6 col-md-3 col-lg-3" style=" float: right !important;">
+
+                         <a href="">
+        <div class="card-flyer">
+            <div class="text-box">
+                <div class="image-box">
+                    <img src="~/images/role.png" alt="" />
+                </div>
+                <div class="text-container">
+                    <h6>@role.fldName</h6>
+                    <p>@role.fldDescription</p>
+                </div>
+             
+                    <div class="text-container">
+
+
+                        @*<a asp-area="" asp-controller="Field" asp-action="Index"  class="btn btn-danger">الحقول</a>*@
+                        @Html.ActionLink("المستخدمين", "Index", "User", new { fldroleuid = role.fldUID }, new { @class = "btn btn-primary" })
+                        <br />
+                        <br />
+                        <a class="btn btn-danger" data-toggle="modal" data-target="#@idx_remove"> حدف</a>
+                        <a class="btn btn-success" data-toggle="modal" data-target="#@idx_edit"> تعديل</a>
+                    </div>
+             
+            </div>
+
+        </div>
+    </a>
+
+ 
+
+                    </div>
+                }
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- New Item Modal-->
+<div class="modal fade" id="newItemModal" tabindex="-1" role="dialog" aria-labelledby="newItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog  modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="newItemModalLabel"><span>اضافة دور جديد</span></h3>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" asp-area="" asp-controller="Role" asp-action="Add">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="inputPassword4"> وصف الدور</label>
+                            <input type="text" style="text-align:right" class="form-control" name="flddescription">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="inputEmail4">اسم الدور</label>
+                            <input type="text" style="text-align:right" class="form-control" name="fldname" />
+                        </div>
+                    </div>
+                   
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal"><h5>الغاء</h5></button>
+                        <button type="submit" class="btn btn-info" href="#"><h5>اضافة</h5></button>
+                    </div>
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+

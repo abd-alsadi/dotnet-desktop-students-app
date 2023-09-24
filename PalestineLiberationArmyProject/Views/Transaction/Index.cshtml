@@ -1,0 +1,212 @@
+﻿@inject SignInManager<ApplicationUser> SignInManager
+@using PalestineLiberationArmyProject.Models.Core;
+@inject UserManager<ApplicationUser> UserManager
+@model List<clsTransaction>
+@{
+    ViewData["Title"] = "الصفحة الرئيسية";
+}
+
+<div class="row" style="margin-top:10px">
+  
+
+   
+
+    <div class="container">
+        <div class="navbar-header navbar-right">
+
+
+            <button type="button" id="print" onclick="printContent()" class="btn btn-info">طباعة المحتوى</button>
+
+            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#newItemModal">اضافة مناقلة</button>
+            @Html.ActionLink("رجوع", "Index", "Person", new { fldpersonuid = ViewBag.fldpersonuid }, new { @class = "btn btn-warning" })
+
+        </div>
+
+        <div class="navbar-collapse collapse" style="width: 255px;">
+            <form method="get" asp-area="" asp-controller="Transaction" asp-action="Index">
+                <button type="submit" class="btn btn-primary">بحث</button>
+                <input type="text" name="fldparameter" />
+                <input type="hidden" name="fldpersonuid" value="@ViewBag.fldpersonuid" />
+            </form>
+        </div>
+    </div>
+</div>
+
+@if (Model.Count == 0)
+{
+
+    <h1>لا يوجد نتائج</h1>
+}
+else
+{
+<div class="container">
+    <br />
+    <div style="width:100%; margin:0 auto;">
+        <table id="fieldsGrid" class="table table-striped table-bordered dt-responsive nowrap" width="100%" cellspacing="0" dir="rtl">
+            <thead>
+                <tr>
+                    <th>رقم المناقلة</th>
+                    <th>نوع المناقلة</th>
+                    <th>نص المناقلة</th>
+                    <th>تاريخ المناقلة</th>      
+                    <th>تاريخ انشاء المناقلة</th>
+                    <th>تعديل</th>
+                    <th>حدف</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                @foreach (var transaction in Model)
+                {
+                    string idx_remove = "removeItemModal_" + transaction.fldUID;
+                    string idxLabel_remove = "removeItemModal_" + transaction.fldUID + "_Label";
+                    <div class="modal fade" id="@idx_remove" tabindex="-1" role="dialog" aria-labelledby="@idxLabel_remove" aria-hidden="true">
+                        <div class="modal-dialog  modal-xl" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h3 class="modal-title" id="@idxLabel_remove"><span>هل انت متأكد من حدف المناقلة ؟</span></h3>
+                                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button class="btn btn-secondary" type="button" data-dismiss="modal"><h5>الغاء</h5></button>
+                                    @Html.ActionLink("تأكيد الحدف", "Delete", "Transaction", new { flduid = transaction.fldUID, fldpersonuid = @ViewBag.fldpersonuid }, new { @class = "btn btn-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    string idx_edit = "editItemModal_" + transaction.fldUID;
+                    string idxLabel_edit = "editItemModal_" + transaction.fldUID + "_Label";
+                    <div class="modal fade" id="@idx_edit" tabindex="-1" role="dialog" aria-labelledby="@idxLabel_edit" aria-hidden="true">
+                        <div class="modal-dialog  modal-xl" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h3 class="modal-title" id="@idxLabel_edit"><span>تعديل المناقلة</span></h3>
+                                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="post" asp-area="" asp-controller="Transaction" asp-action="Update">
+                                        <div class="form-row">
+                                            <input type="hidden" name="fldpersonuid" value="@ViewBag.fldpersonuid" />
+                                            <div class="form-group col-md-6">
+                                                <label for="inputPassword4">تاريخ انشاء المناقلة</label>
+                                                <input type="text" style="text-align:right" class="form-control" name="fldCreationDate" value="@transaction.fldCreationDate" readonly>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label for="inputPassword4">رقم المناقلة</label>
+                                                <input type="text" style="text-align:right" class="form-control" name="flduid" value="@transaction.fldUID" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group col-md-6">
+                                                <label for="inputPassword4">نص المناقلة</label>
+                                                <input type="text" style="text-align:right" class="form-control" name="fldtext" value="@transaction.fldtext">
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label for="inputEmail4">نوع المناقلة</label>
+                                                <input type="text" style="text-align:right" class="form-control" name="fldtype" value="@transaction.fldtype" />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                        
+                                            <div class="form-group col-md-6">
+                                                <label for="inputEmail4">تاريخ المناقلة</label>
+                                                <input type="text" style="text-align:center" class="form-control" name="flddate" value="@transaction.fldDate" />
+                                            </div>
+                                        </div>
+  
+                                        <div class="modal-footer">
+                                            <button class="btn btn-secondary" type="button" data-dismiss="modal"><h5>الغاء</h5></button>
+                                            <button type="submit" class="btn btn-success" href="#"><h5>تعديل</h5></button>
+                                        </div>
+                                    </form>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <tr>
+                        <th>@transaction.fldUID</th>
+                        <th>@transaction.fldtype</th>
+                        <th>@transaction.fldtext</th>
+                        <th>@transaction.fldDate</th>
+
+                        <th>@transaction.fldCreationDate</th>
+                        <th><a class="btn btn-danger" data-toggle="modal" data-target="#@idx_remove"> حدف</a></th>
+                        <th><a class="btn btn-success" data-toggle="modal" data-target="#@idx_edit"> تعديل</a></th>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div> 
+}
+<!-- New Item Modal-->
+<div class="modal fade" id="newItemModal" tabindex="-1" role="dialog" aria-labelledby="newItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog  modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="newItemModalLabel"><span>اضافة مناقلة جديدة</span></h3>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" asp-area="" asp-controller="Transaction" asp-action="Add" >
+                    <input type="hidden" name="fldpersonuid" value="@ViewBag.fldpersonuid"/>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="inputPassword4"> نوع المناقلة</label>
+                            <input type="text" style="text-align:right" class="form-control" name="fldtype">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="inputEmail4">نص المناقلة</label>
+                            <input type="text" style="text-align:right" class="form-control" name="fldtext" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                    
+                        <div class="form-group col-md-6">
+                            <label for="inputEmail4">تاريخ المناقلة</label>
+                            <input type="text" style="text-align:center" class="form-control" name="flddate" />
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal"><h5>الغاء</h5></button>
+                        <button type="submit" class="btn btn-info" href="#"><h5>اضافة</h5></button>
+                    </div>
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+<script>
+
+    function printContent() {
+       printDataByID("fieldsGrid");
+    }
+</script>
+
